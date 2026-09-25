@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Datasets and Preprocessing
+MAGFiLO_1.0_Kaggle_2026/
+preprocessed/
+images_512/
+images_clahe_512/
+masks_512/
+
+# Notebooks
+.ipynb_checkpoints
+
+# Model outputs, checkpoints, and logs
+outputs/checkpoints/
+outputs/logs/
+outputs/metrics/
+outputs/predictions/
+*.pth
+*.pt
+*.ckpt
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

@@ -1,0 +1,119 @@
+# =============================================================================
+# Solar Filament Segmentation — Master Configuration
+# =============================================================================
+# All paths and hyperparameters are controlled here.
+# Do NOT hard-code these values in any source file.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Dataset
+# ---------------------------------------------------------------------------
+# Root of the PREPROCESSED dataset (output of preprocess_filament_dataset.py).
+# This must point to the "preprocessed" sub-folder that contains:
+#   images_512/, images_clahe_512/, masks_512/, metadata/
+#
+# Set this to where you ran the preprocessor with --output_dir.
+# Example:
+#   preprocessed_dir: "C:/Users/sivas/OneDrive/Desktop/vs code files/ML/MAGFiLO_1.0_Kaggle_2026/preprocessed"
+preprocessed_dir: "C:/Users/sivas/OneDrive/Desktop/vs code files/ML/MAGFiLO_1.0_Kaggle_2026/preprocessed"
+
+# Raw dataset root (used only by preprocess_filament_dataset.py).
+# Example:
+#   raw_data_dir: "C:/Users/sivas/OneDrive/Desktop/vs code files/ML/MAGFiLO_1.0_Kaggle_2026"
+raw_data_dir: ""              # <-- FILL IN before preprocessing
+
+# Which mask type to train on:
+#   "binary"     → 0=background, 1=filament  (recommended starting point)
+#   "multiclass" → 0=bg, 1=Left, 2=Right, 3=Unidentifiable, 4=Ambiguous
+mask_type: "binary"
+
+# Whether to use CLAHE-enhanced images (recommended: True for solar imagery)
+use_clahe: true
+
+# ---------------------------------------------------------------------------
+# Image
+# ---------------------------------------------------------------------------
+image_size: 512          # Must match the size used during preprocessing
+image_channels: 1        # Grayscale H-alpha images
+
+# ---------------------------------------------------------------------------
+# Training
+# ---------------------------------------------------------------------------
+batch_size: 8
+epochs: 100
+learning_rate: 0.0001
+weight_decay: 0.0001
+num_workers: 4           # Set to 0 on Windows if DataLoader workers cause issues
+random_seed: 42
+
+# Early stopping: stop training if val Dice does not improve for this many epochs
+early_stopping_patience: 15
+
+# Gradient clipping — helps stabilise training with boundary loss
+grad_clip_norm: 1.0
+
+# ---------------------------------------------------------------------------
+# Optimizer
+# ---------------------------------------------------------------------------
+# Supported: "adam", "adamw", "sgd"
+optimizer: "adamw"
+
+# ---------------------------------------------------------------------------
+# LR Scheduler
+# ---------------------------------------------------------------------------
+# Supported: "cosine", "step", "plateau", "none"
+scheduler: "cosine"
+scheduler_step_size: 20       # For "step" scheduler: decay every N epochs
+scheduler_gamma: 0.5          # For "step" scheduler: multiplicative factor
+scheduler_min_lr: 1.0e-6      # For "cosine" scheduler: minimum LR
+
+# ---------------------------------------------------------------------------
+# Loss Function
+# ---------------------------------------------------------------------------
+loss:
+  # Weights for the combined loss:
+  #   L_total = bce_weight * BCE + dice_weight * Dice + boundary_weight * Boundary
+  # boundary_weight is only used by boundary_attention_unet.
+  # Start with equal weights; tune after initial experiments.
+  bce_weight: 0.4
+  dice_weight: 0.4
+  boundary_weight: 0.2
+
+  # Dice loss smooth factor (prevents division-by-zero on empty masks)
+  dice_smooth: 1.0
+
+# ---------------------------------------------------------------------------
+# Model
+# ---------------------------------------------------------------------------
+model:
+  # input_channels must match image_channels (1 for grayscale)
+  input_channels: 1
+  # output_channels: 1 for binary, 5 for multiclass (matches mask_type above)
+  output_channels: 1
+  # Base feature width of the U-Net encoder
+  base_features: 64
+
+# ---------------------------------------------------------------------------
+# Sanity Check (--sanity flag)
+# ---------------------------------------------------------------------------
+sanity:
+  max_samples: 8     # Load only this many samples during a sanity run
+  epochs: 1          # Number of epochs during sanity check
+
+# ---------------------------------------------------------------------------
+# Evaluation & Inference
+# ---------------------------------------------------------------------------
+# Threshold for binarizing sigmoid output (binary segmentation only)
+inference_threshold: 0.5
+# Number of qualitative prediction images to save
+num_prediction_samples: 20
+
+# ---------------------------------------------------------------------------
+# Output Directories (relative to project root)
+# ---------------------------------------------------------------------------
+output:
+  checkpoints: "outputs/checkpoints"
+  metrics: "outputs/metrics"
+  figures: "outputs/figures"
+  predictions: "outputs/predictions"
+  logs: "outputs/logs"
